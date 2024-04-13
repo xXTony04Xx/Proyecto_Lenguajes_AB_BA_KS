@@ -1,251 +1,143 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Linq.Expressions;
-
 
 namespace Proyecto_Lenguajes
 {
     class Automata
     {
-        public int numeroEstados;
-        public string EstadoInicial;
-        public List<string> EstadoFinal = new List<string>();
-        public List<(string EstadoActual, char Simbolo, string EstadoFuturo)> tabla = new List<(string, char, string)>();
+        public int NumeroEstados { get; set; }
+        public string EstadoInicial { get; set; }
+        public List<string> EstadoFinal { get; set; } = new List<string>();
+        public List<(string EstadoActual, char Simbolo, string EstadoFuturo)> Tabla { get; set; } = new List<(string, char, string)>();
     }
 
     internal class Program
     {
+        static HashSet<string> estadosUnicos = new HashSet<string>();
+        static Automata automata = new Automata();
+
         static void Main(string[] args)
         {
             int opcion = 0;
 
             Console.WriteLine("1. Determinista");
             Console.WriteLine("2. No determinista");
-            Console.WriteLine("3. salir");
+            Console.WriteLine("3. Salir");
             Console.WriteLine();
             opcion = int.Parse(Console.ReadLine());
             Console.Clear();
 
             switch (opcion)
             {
-                case 1://determinista
-
-                    Automata automata = new Automata();
-                    Console.WriteLine("Ingrese la ruta del archivo:");
-                    string filePath = Console.ReadLine();
-                    HashSet<string> estadosunicos = new HashSet<string>();
-                    if (File.Exists(filePath))
-                    {
-                        using (var reader = new StreamReader(filePath))
-                        {
-                            // Leer el # de estados (n)
-                            int numberOfStates = int.Parse(reader.ReadLine());
-                            automata.numeroEstados = numberOfStates;
-
-                            // Leer el estado inicial (1..n)
-                            string initialState = reader.ReadLine();
-                            automata.EstadoInicial = initialState;
-
-                            // Leer el conjunto de estados finales separados por comas
-                            string[] finalStates = reader.ReadLine().Split(',');
-                            foreach (var estado in finalStates)
-                            {
-                                automata.EstadoFinal.Add(estado);
-                            }
-
-                            //Leer transiciones
-                            string[] lines = File.ReadAllLines(filePath);
-                            int contador = 0;
-                            foreach (string line in lines)
-                            {
-                                string[] parts = line.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                if (parts.Length == 3)
-                                {
-                                    string estadoActual = parts[0].Trim();
-                                    char simbolo = parts[1].Trim()[0];
-                                    string estadoFuturo = parts[2].Trim();
-                                    automata.tabla.Add((estadoActual, simbolo, estadoFuturo));
-                                    estadosunicos.Add(estadoActual);
-                                    estadosunicos.Add(estadoFuturo);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Archivo no encontrado.");
-                    }
-                    Console.Clear();
-                    Console.WriteLine("Ingrese la cadena a evaluar:");
-                    string cadena = Console.ReadLine();
-                    int posicioncadena = 0;
-                    bool continuar = true;
-                    bool pasoInicio = false, EstadoCadena = false;
-                    if (estadosunicos.Count == automata.numeroEstados)
-                    {
-                        string estadosiguiente = "";
-                        while (continuar)
-                        {
-                            foreach (var validacion in automata.tabla)
-                            {
-                                if (posicioncadena <= (cadena.Length - 1))
-                                {
-                                    if (validacion.Simbolo == cadena[posicioncadena]) //Validar si la primera entrada existe en el automata
-                                    {
-                                        if (validacion.EstadoActual == automata.EstadoInicial && pasoInicio != true) //Validar si el estado actual es el inicial
-                                        {
-                                            pasoInicio = true;
-                                            EstadoCadena = true;
-                                            estadosiguiente = validacion.EstadoFuturo;
-                                            posicioncadena++;
-                                        }
-                                        if (validacion.EstadoActual == estadosiguiente)
-                                        {
-                                            if (validacion.Simbolo == cadena[posicioncadena])
-                                            {
-                                                EstadoCadena = true;
-                                                estadosiguiente = validacion.EstadoFuturo;
-                                                posicioncadena++;
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (EstadoCadena == true)
-                                    {
-                                        foreach (var estadoFinal in automata.EstadoFinal)
-                                        {
-                                            if (estadoFinal == estadosiguiente)
-                                            {
-                                                if (EstadoCadena == true)
-                                                {
-                                                    Console.WriteLine("La cadena es valida");
-                                                    Console.ReadLine();
-                                                    continuar = false;
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    Console.WriteLine("La cadena no es valida");
-                                                    Console.ReadLine();
-                                                    continuar = false;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
+                case 1:
+                    LeerArchivo();
+                    Valuar();
                     break;
-                case 2://no determinista
-                   
+                case 2:
+                    // Lógica para automata no determinista
                     break;
-                case 3://salir
-
-
-
+                case 3:
                     Console.WriteLine("Adios");
                     Console.ReadKey();
                     break;
-
             }
         }
-        #region Tony
-        //static void LeerCarpeta(string carpeta)
-        //{
-        //    int contadorTemp = 1;
-        //    int opcion2 = 0;
-        //    string[] archivos = Directory.GetFiles(carpeta);
 
-        //    Console.WriteLine("Archivos en la carpeta:");
+        static void LeerArchivo()
+        {
+            Console.WriteLine("Ingrese la ruta del archivo:");
+            string filePath = Console.ReadLine();
+            if (File.Exists(filePath))
+            {
+                using (var reader = new StreamReader(filePath))
+                {
+                    int numberOfStates = int.Parse(reader.ReadLine());
+                    automata.NumeroEstados = numberOfStates;
 
-        //    foreach (string archivo in archivos)
-        //    {
-        //        Console.WriteLine( contadorTemp + ". " + Path.GetFileName(archivo));
-        //        contadorTemp++;
-        //    }
+                    string initialState = reader.ReadLine();
+                    automata.EstadoInicial = initialState;
 
-        //    Console.WriteLine("Seleccione el archivo a abrir y si desea enviar una ruta de forma manual, seleccione el no.6");
-        //    opcion2 = int.Parse(Console.ReadLine());
-        //    Console.Clear();
+                    string[] finalStates = reader.ReadLine().Split(',');
+                    automata.EstadoFinal.AddRange(finalStates);
 
-        //    switch(opcion2)
-        //        {
-        //        case 1:
-        //            LeerArchivo(@"C:\Users\antho\OneDrive\Escritorio\Automatas deterministas\(0,1) 0 multiplos de 3 y 1 multiplos de 4 (1).txt");
+                    string[] lines = File.ReadAllLines(filePath);
+                    foreach (string line in lines)
+                    {
+                        string[] parts = line.Split(',');
+                        if (parts.Length == 3)
+                        {
+                            string estadoActual = parts[0].Trim();
+                            char simbolo = parts[1].Trim()[0];
+                            string estadoFuturo = parts[2].Trim();
+                            automata.Tabla.Add((estadoActual, simbolo, estadoFuturo));
+                            estadosUnicos.Add(estadoActual);
+                            estadosUnicos.Add(estadoFuturo);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Archivo no encontrado.");
+            }
+            Console.Clear();
+        }
 
-        //            break;
+        static void Valuar()
+        {
+            bool seguir = true;
+            string dato = "";
 
-        //        case 2:
-        //            LeerArchivo(@"C:\Users\antho\OneDrive\Escritorio\Automatas deterministas\automata fin 11.txt");
-        //            break;
+            while (seguir)
+            {
+                Console.WriteLine("¿Desea evaluar una cadena? (si/no)");
+                dato = Console.ReadLine();
+                if (dato.ToLower() == "no")
+                {
+                    seguir = false;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingrese la cadena a evaluar:");
+                    string cadena = Console.ReadLine();
+                    int posicionCadena = 0;
+                    string estadoActual = automata.EstadoInicial;
 
-        //        case 3:
-        //            LeerArchivo(@"C:\Users\antho\OneDrive\Escritorio\Automatas deterministas\autómata no.2 – (abc  (ab))  (cc).txt");
-        //            break;
+                    while (posicionCadena < cadena.Length)
+                    {
+                        bool transicionEncontrada = false;
+                        foreach (var transicion in automata.Tabla)
+                        {
+                            if (transicion.EstadoActual == estadoActual && transicion.Simbolo == cadena[posicionCadena])
+                            {
+                                estadoActual = transicion.EstadoFuturo;
+                                posicionCadena++;
+                                transicionEncontrada = true;
+                                break;
+                            }
+                        }
+                        if (!transicionEncontrada)
+                        {
+                            Console.WriteLine("La cadena no es válida");
+                            Console.ReadLine();
+                            break;
+                        }
+                    }
 
-        //        case 4:
-        //            LeerArchivo(@"C:\Users\antho\OneDrive\Escritorio\Automatas deterministas\automata3.txt");
-        //            break;
-
-        //        case 5:
-        //            LeerArchivo(@"C:\Users\antho\OneDrive\Escritorio\Automatas deterministas\automata4.txt");
-        //            break;
-
-        //        case 6:
-        //            string rutaArchivo = null;
-        //            Console.WriteLine("ha escogido la opcion de ingreso manual, pegue la ruta de su archivo .txt");
-        //            rutaArchivo = Console.ReadLine();
-
-        //            if (!string.IsNullOrEmpty(rutaArchivo))
-        //            {
-        //                // Verificar si el archivo existe en la ruta especificada
-        //                if (File.Exists(rutaArchivo))
-        //                {
-        //                    // Llamar a la función para leer el archivo
-        //                    LeerArchivo(rutaArchivo);
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("El archivo no existe en la ruta especificada.");
-        //                }
-        //            }
-        //            else
-        //            {
-        //                Console.WriteLine("La ruta ingresada es nula o vacía. No se puede continuar.");
-        //            }
-
-        //            break;
-        //    }
-
-
-        //}
-
-        //static void LeerArchivo(string rutaArchivo)
-        //{
-
-        //    try
-        //    {
-
-        //        string contenido = File.ReadAllText(rutaArchivo);
-        //        Console.WriteLine("Contenido del archivo:");
-        //        Console.WriteLine(contenido);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Se produjo un error al intentar leer el archivo:");
-        //        Console.WriteLine(ex.Message);
-        //    }
-
-        //}
-        #endregion
+                    if (posicionCadena == cadena.Length && automata.EstadoFinal.Contains(estadoActual))
+                    {
+                        Console.WriteLine("La cadena es válida");
+                        Console.ReadLine();
+                    }
+                    else if (posicionCadena == cadena.Length)
+                    {
+                        Console.WriteLine("La cadena no es válida");
+                        Console.ReadLine();
+                    }
+                }
+            }
+        }
     }
 }
