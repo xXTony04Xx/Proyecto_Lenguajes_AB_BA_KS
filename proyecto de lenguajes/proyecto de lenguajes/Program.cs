@@ -223,8 +223,9 @@ namespace Proyecto_Lenguajes
                                     }
                                     else
                                     {
-                                        validaciones.Add(transicion.EstadoFuturo);
-                                        nocadena.Add(posicionCadena);
+										Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo + " (NUEVA)");
+										validaciones.Add(transicion.EstadoFuturo);
+                                        nocadena.Add(posicionCadena + 1);
 									}
                                 }
                             }
@@ -259,6 +260,8 @@ namespace Proyecto_Lenguajes
                     {
 						Console.WriteLine("Cadena No Aceptada");
 					}
+
+					Console.WriteLine("------------------------------");
 				}
 			}
 		}
