@@ -15,11 +15,8 @@ namespace Proyecto_Lenguajes
 
     internal class Program
     {
-        static HashSet<string> estadosUnicos = new HashSet<string>();
         static Automata automata = new Automata();
         
-            bool archivo = false;
-
         static void Main(string[] args)
         {
             int opcion = 0;
@@ -46,8 +43,11 @@ namespace Proyecto_Lenguajes
 						
                         break;
                     case 2:
-                        // Lógica para automata no determinista
-                        break;
+						if (LeerArchivo())
+						{
+							ValuarND();
+						}
+						break;
                     case 3:
                         Console.WriteLine("Adios :)");
                         Console.ReadKey();
@@ -96,8 +96,6 @@ namespace Proyecto_Lenguajes
                             char simbolo = parts[1].Trim()[0];
                             string estadoFuturo = parts[2].Trim();
                             automata.Tabla.Add((estadoActual, simbolo, estadoFuturo));
-                            estadosUnicos.Add(estadoActual);
-                            estadosUnicos.Add(estadoFuturo);
                         }
                     }
                     return true;
@@ -172,5 +170,97 @@ namespace Proyecto_Lenguajes
                 }
             }
         }
-    }
+
+
+		//No determinista
+
+		static void ValuarND()
+		{
+			bool seguir = true;
+			string dato;
+
+			while (seguir)
+			{
+				Console.WriteLine("¿Desea evaluar una cadena? (si/no)");
+				dato = Console.ReadLine();
+				if (dato.ToLower() == "no")
+				{
+					seguir = false;
+				}
+				else
+				{
+					Console.Clear();
+					Console.Write("Ingrese la cadena a evaluar:");
+					string cadena = Console.ReadLine();
+					Console.WriteLine("Procedimiento: ");
+
+					List<string> validaciones = new List<string>();
+					List<int> nocadena = new List<int>();
+					validaciones.Add(automata.EstadoInicial);
+                    nocadena.Add(0);
+                    int indicevalidaciones = 0;
+                    bool aceptada = false;
+
+                    while(indicevalidaciones < validaciones.Count)
+                    {
+						Console.WriteLine("Rama " + indicevalidaciones);
+
+                        string estadoActual = validaciones[indicevalidaciones];
+                        string estadoActualP = validaciones[indicevalidaciones];
+						int posicionCadena = nocadena[indicevalidaciones];
+						while (posicionCadena < cadena.Length)
+                        {
+							bool agregar = false;
+							foreach (var transicion in automata.Tabla)
+                            {
+                                if (transicion.EstadoActual == estadoActual && transicion.Simbolo == cadena[posicionCadena])
+                                {
+									if (agregar == false)
+                                    {
+										Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo);
+										estadoActualP = transicion.EstadoFuturo;
+                                        agregar = true;
+                                    }
+                                    else
+                                    {
+                                        validaciones.Add(transicion.EstadoFuturo);
+                                        nocadena.Add(posicionCadena);
+									}
+                                }
+                            }
+                            estadoActual = estadoActualP;
+							posicionCadena++;
+						}
+						Console.WriteLine("------------------------------");
+
+						if (automata.EstadoFinal.Contains(estadoActual))
+                        {
+                            Console.WriteLine("Estado Final.");
+                            aceptada = true;
+                        }
+                        else
+                        {
+							Console.WriteLine("Estado No Final.");
+						}
+
+                        Console.WriteLine();
+
+						Console.ReadKey();
+						indicevalidaciones++;
+					}
+
+					Console.WriteLine("------------------------------");
+
+					if (aceptada)
+                    {
+                        Console.WriteLine("Cadena Aceptada");
+                    }
+                    else
+                    {
+						Console.WriteLine("Cadena No Aceptada");
+					}
+				}
+			}
+		}
+	}
 }
