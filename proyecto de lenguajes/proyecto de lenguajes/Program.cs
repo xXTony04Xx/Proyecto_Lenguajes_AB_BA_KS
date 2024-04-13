@@ -4,7 +4,8 @@ using System.IO;
 
 namespace Proyecto_Lenguajes
 {
-    class Automata
+
+	class Automata
     {
         public int NumeroEstados { get; set; }
         public string EstadoInicial { get; set; }
@@ -16,35 +17,59 @@ namespace Proyecto_Lenguajes
     {
         static HashSet<string> estadosUnicos = new HashSet<string>();
         static Automata automata = new Automata();
+        
+            bool archivo = false;
 
         static void Main(string[] args)
         {
             int opcion = 0;
 
-            Console.WriteLine("1. Determinista");
-            Console.WriteLine("2. No determinista");
-            Console.WriteLine("3. Salir");
-            Console.WriteLine();
-            opcion = int.Parse(Console.ReadLine());
-            Console.Clear();
+			bool seguir2 = true;
+			string dato2 = "";
 
-            switch (opcion)
+            while (seguir2)
             {
-                case 1:
-                    LeerArchivo();
-                    Valuar();
-                    break;
-                case 2:
-                    // Lógica para automata no determinista
-                    break;
-                case 3:
-                    Console.WriteLine("Adios");
-                    Console.ReadKey();
-                    break;
-            }
+                Console.WriteLine("1. Determinista");
+                Console.WriteLine("2. No determinista");
+                Console.WriteLine("3. Salir");
+				Console.Write("Escoja una opción: ");
+                opcion = int.Parse(Console.ReadLine());
+                Console.Clear();
+
+                switch (opcion)
+                {
+                    case 1:
+                        if (LeerArchivo())
+                        {
+                            Valuar();
+                        }
+						
+                        break;
+                    case 2:
+                        // Lógica para automata no determinista
+                        break;
+                    case 3:
+                        Console.WriteLine("Adios :)");
+                        Console.ReadKey();
+						seguir2 = false;
+						break;
+                }
+                if (seguir2 == true)
+                {
+                    Console.Clear();
+                    Console.WriteLine("¿Desea probar otro automata? (si/no)");
+                    dato2 = Console.ReadLine();
+                    if (dato2.ToLower() == "no")
+                    {
+                        seguir2 = false;
+						Console.WriteLine("Adios :)");
+						Console.ReadKey();
+					}
+                }
+			}
         }
 
-        static void LeerArchivo()
+        static bool LeerArchivo()
         {
             Console.WriteLine("Ingrese la ruta del archivo:");
             string filePath = Console.ReadLine();
@@ -75,13 +100,16 @@ namespace Proyecto_Lenguajes
                             estadosUnicos.Add(estadoFuturo);
                         }
                     }
+                    return true;
                 }
             }
             else
             {
                 Console.WriteLine("Archivo no encontrado.");
-            }
-            Console.Clear();
+				Console.ReadKey();
+				Console.Clear();
+				return false;
+			}
         }
 
         static void Valuar()
@@ -100,9 +128,10 @@ namespace Proyecto_Lenguajes
                 else
                 {
                     Console.Clear();
-                    Console.WriteLine("Ingrese la cadena a evaluar:");
+                    Console.Write("Ingrese la cadena a evaluar:");
                     string cadena = Console.ReadLine();
-                    int posicionCadena = 0;
+					Console.WriteLine("Procedimiento: ");
+					int posicionCadena = 0;
                     string estadoActual = automata.EstadoInicial;
 
                     while (posicionCadena < cadena.Length)
@@ -112,7 +141,8 @@ namespace Proyecto_Lenguajes
                         {
                             if (transicion.EstadoActual == estadoActual && transicion.Simbolo == cadena[posicionCadena])
                             {
-                                estadoActual = transicion.EstadoFuturo;
+								Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo);
+								estadoActual = transicion.EstadoFuturo;
                                 posicionCadena++;
                                 transicionEncontrada = true;
                                 break;
@@ -120,7 +150,8 @@ namespace Proyecto_Lenguajes
                         }
                         if (!transicionEncontrada)
                         {
-                            Console.WriteLine("La cadena no es válida");
+							Console.WriteLine("--------------------");
+							Console.WriteLine("La cadena no es válida");
                             Console.ReadLine();
                             break;
                         }
@@ -128,12 +159,14 @@ namespace Proyecto_Lenguajes
 
                     if (posicionCadena == cadena.Length && automata.EstadoFinal.Contains(estadoActual))
                     {
-                        Console.WriteLine("La cadena es válida");
+						Console.WriteLine("--------------------");
+						Console.WriteLine("La cadena es válida");
                         Console.ReadLine();
                     }
                     else if (posicionCadena == cadena.Length)
                     {
-                        Console.WriteLine("La cadena no es válida");
+						Console.WriteLine("--------------------");
+						Console.WriteLine("La cadena no es válida");
                         Console.ReadLine();
                     }
                 }
