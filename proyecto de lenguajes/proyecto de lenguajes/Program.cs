@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -95,8 +96,8 @@ namespace Proyecto_Lenguajes
                             string estadoActual = parts[0].Trim();
                             char simbolo = parts[1].Trim()[0];
                             string estadoFuturo = parts[2].Trim();
-                            automata.Tabla.Add((estadoActual, simbolo, estadoFuturo));
-                        }
+							automata.Tabla.Add((estadoActual, simbolo, estadoFuturo));
+						}
                     }
                     return true;
                 }
@@ -203,33 +204,64 @@ namespace Proyecto_Lenguajes
 
                     while(indicevalidaciones < validaciones.Count)
                     {
-						Console.WriteLine("Rama " + indicevalidaciones);
-
                         string estadoActual = validaciones[indicevalidaciones];
                         string estadoActualP = validaciones[indicevalidaciones];
 						int posicionCadena = nocadena[indicevalidaciones];
+
+						Console.Write("Rama " + indicevalidaciones + " (");
+
+						for (int i = posicionCadena; i < cadena.Length; i++)
+						{
+							Console.Write(cadena[i]);
+						}
+
+                        Console.WriteLine(")");
+
 						while (posicionCadena < cadena.Length)
                         {
 							bool agregar = false;
+							bool agregar2 = false;
+							int posicionCadena2 = posicionCadena;
 							foreach (var transicion in automata.Tabla)
                             {
-                                if (transicion.EstadoActual == estadoActual && transicion.Simbolo == cadena[posicionCadena])
+                                if (transicion.EstadoActual == estadoActual)
                                 {
-									if (agregar == false)
+                                    if (transicion.Simbolo == cadena[posicionCadena])
                                     {
-										Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo);
-										estadoActualP = transicion.EstadoFuturo;
-                                        agregar = true;
+                                        if (agregar == false)
+                                        {
+                                            Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo);
+                                            estadoActualP = transicion.EstadoFuturo;
+                                            agregar = true;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
+                                            validaciones.Add(transicion.EstadoFuturo);
+                                            nocadena.Add(posicionCadena + 1);
+                                        }
                                     }
-                                    else
+                                    else if (transicion.Simbolo == 'e')
                                     {
-										Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo + " (NUEVA)");
-										validaciones.Add(transicion.EstadoFuturo);
-                                        nocadena.Add(posicionCadena + 1);
+                                        if (agregar2 == false && agregar == false)
+                                        {
+                                            Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion.EstadoFuturo);
+                                            estadoActualP = transicion.EstadoFuturo;
+                                            posicionCadena2 --;
+                                            agregar = true;
+                                            agregar2 = true;
+                                        }
+                                        else
+                                        {
+											Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
+											validaciones.Add(transicion.EstadoFuturo);
+											nocadena.Add(posicionCadena);
+										}
 									}
                                 }
                             }
                             estadoActual = estadoActualP;
+                            posicionCadena = posicionCadena2;
 							posicionCadena++;
 						}
 						Console.WriteLine("------------------------------");
