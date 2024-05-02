@@ -222,12 +222,14 @@ namespace Proyecto_Lenguajes
 							bool agregar = false;
 							bool agregar2 = false;
 							int posicionCadena2 = posicionCadena;
+                            bool pasar = false;
 							foreach (var transicion in automata.Tabla)
                             {
                                 if (transicion.EstadoActual == estadoActual)
                                 {
                                     if (transicion.Simbolo == cadena[posicionCadena])
                                     {
+                                        pasar = true;
                                         if (agregar == false)
                                         {
                                             Console.WriteLine(estadoActual + ", " + cadena[posicionCadena] + ", " + transicion.EstadoFuturo);
@@ -243,6 +245,7 @@ namespace Proyecto_Lenguajes
                                     }
                                     else if (transicion.Simbolo == 'e')
                                     {
+                                        pasar = true;
                                         if (agregar2 == false && agregar == false)
                                         {
                                             Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion.EstadoFuturo);
@@ -260,23 +263,35 @@ namespace Proyecto_Lenguajes
 									}
                                 }
                             }
-                            estadoActual = estadoActualP;
+
+							if (pasar == false)
+							{
+                                break;
+							}
+
+							estadoActual = estadoActualP;
                             posicionCadena = posicionCadena2;
 							posicionCadena++;
 						}
 						Console.WriteLine("------------------------------");
-
-						if (automata.EstadoFinal.Contains(estadoActual))
+                        if (posicionCadena == cadena.Length)
                         {
-                            Console.WriteLine("Estado Final.");
-                            aceptada = true;
+                            if (automata.EstadoFinal.Contains(estadoActual))
+                            {
+                                Console.WriteLine("Estado Final.");
+                                aceptada = true;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Estado No Final.");
+                            }
                         }
-                        else
-                        {
-							Console.WriteLine("Estado No Final.");
+						else
+						{
+							Console.WriteLine("Quedan caracteres de la cadena.");
 						}
 
-                        Console.WriteLine();
+						Console.WriteLine();
 
 						Console.ReadKey();
 						indicevalidaciones++;
