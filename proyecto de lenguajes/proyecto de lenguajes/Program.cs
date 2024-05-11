@@ -177,6 +177,7 @@ namespace Proyecto_Lenguajes
 
 		static void ValuarND()
 		{
+            char epsilon = 'ε';
 			bool seguir = true;
 			string dato;
 
@@ -243,12 +244,12 @@ namespace Proyecto_Lenguajes
                                             nocadena.Add(posicionCadena + 1);
                                         }
                                     }
-                                    else if (transicion.Simbolo == 'e')
+                                    else if (transicion.Simbolo == epsilon)
                                     {
                                         pasar = true;
                                         if (agregar2 == false && agregar == false)
                                         {
-                                            Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion.EstadoFuturo);
+                                            Console.WriteLine(estadoActual + ", " + epsilon + ", " + transicion.EstadoFuturo);
                                             estadoActualP = transicion.EstadoFuturo;
                                             posicionCadena2 --;
                                             agregar = true;
@@ -256,7 +257,7 @@ namespace Proyecto_Lenguajes
                                         }
                                         else
                                         {
-											Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
+											Console.WriteLine(estadoActual + ", " + epsilon + ", " + transicion.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
 											validaciones.Add(transicion.EstadoFuturo);
 											nocadena.Add(posicionCadena);
 										}
@@ -273,7 +274,6 @@ namespace Proyecto_Lenguajes
                             posicionCadena = posicionCadena2;
 							posicionCadena++;
 						}
-						Console.WriteLine("------------------------------");
                         if (posicionCadena == cadena.Length)
                         {
                             bool repetir = true;
@@ -287,17 +287,17 @@ namespace Proyecto_Lenguajes
                                 {
                                     if (transicion2.EstadoActual == estadoActual)
                                     {
-                                        if (transicion2.Simbolo == 'e')
+                                        if (transicion2.Simbolo == epsilon)
                                         {
                                             if (agregar3 == false)
                                             {
-                                                Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion2.EstadoFuturo);
+                                                Console.WriteLine(estadoActual + ", " + epsilon + ", " + transicion2.EstadoFuturo);
                                                 estadoActualP = transicion2.EstadoFuturo;
                                                 agregar3 = true;
                                             }
                                             else
                                             {
-                                                Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion2.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
+                                                Console.WriteLine(estadoActual + ", " + epsilon + ", " + transicion2.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
                                                 validaciones.Add(transicion2.EstadoFuturo);
 												nocadena.Add(posicionCadena);
 											}
@@ -311,7 +311,7 @@ namespace Proyecto_Lenguajes
                                     repetir = false;
                                 }
                             }
-
+							Console.WriteLine("------------------------------");
 							if (automata.EstadoFinal.Contains(estadoActual))
                             {
                                 Console.WriteLine("Estado Final.");
