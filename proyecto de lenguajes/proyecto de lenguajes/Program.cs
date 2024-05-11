@@ -276,7 +276,43 @@ namespace Proyecto_Lenguajes
 						Console.WriteLine("------------------------------");
                         if (posicionCadena == cadena.Length)
                         {
-                            if (automata.EstadoFinal.Contains(estadoActual))
+                            bool repetir = true;
+
+                            while (repetir)
+                            {
+                                string estadoActualR = estadoActual;
+								bool agregar3 = false;
+
+								foreach (var transicion2 in automata.Tabla)
+                                {
+                                    if (transicion2.EstadoActual == estadoActual)
+                                    {
+                                        if (transicion2.Simbolo == 'e')
+                                        {
+                                            if (agregar3 == false)
+                                            {
+                                                Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion2.EstadoFuturo);
+                                                estadoActualP = transicion2.EstadoFuturo;
+                                                agregar3 = true;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(estadoActual + ", " + "e" + ", " + transicion2.EstadoFuturo + " (NUEVA - RAMA " + validaciones.Count + ")");
+                                                validaciones.Add(transicion2.EstadoFuturo);
+												nocadena.Add(posicionCadena);
+											}
+                                        }
+                                    }
+                                }
+                                estadoActual = estadoActualP;
+
+                                if(estadoActual == estadoActualR)
+                                {
+                                    repetir = false;
+                                }
+                            }
+
+							if (automata.EstadoFinal.Contains(estadoActual))
                             {
                                 Console.WriteLine("Estado Final.");
                                 aceptada = true;
